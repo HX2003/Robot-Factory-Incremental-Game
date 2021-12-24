@@ -1,0 +1,2286 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+		<title>Robot Factory</title>
+		<link rel="manifest" href="manifest.json">
+<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js" integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU=" crossorigin="anonymous"></script>
+<script src="js/three.min.js"></script>
+<script src="js/OrbitControls.js"></script>
+<script src='js/Wireframe.js'></script>
+<script src="js/three.proton.min.js"></script>
+<script src="js/stats.min.js"></script>
+<script src="js/THREE.Terrain.js"></script>
+<script src="js/GLTFLoader.js"></script>
+<script src="js/pathfinding-browser.min.js"></script>
+
+<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css">
+<style>
+@import url(https://fonts.googleapis.com/css?family=Josefin+Sans:400,600,700);
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+nav li a:hover {
+  background: #dadada;
+  color: #454545;
+}
+.tabClass {
+  height: 85%;
+}
+#tabD,
+#tabE,
+#tabF {
+  overflow: auto;
+  background: rgb(57, 57, 60);
+  background: linear-gradient(
+    90deg,
+    rgba(57, 57, 57, 1) 10%,
+    rgba(57, 57, 57, 1) 40%,
+    rgba(57, 57, 57, 0.5) 70%,
+    rgba(55, 55, 55, 1) 100%
+  );
+  padding: 5px;
+  border-radius: 3px;
+}
+.clear {
+  clear: both;
+}
+html {
+  height: 100%;
+}
+body {
+  background: #454545;
+  margin: 0px;
+  font-family: "Josefin Sans", sans-serif;
+  font-size: 20px;
+  color: #fafafa;
+  height: 100%;
+  line-height: 100%;
+  position: relative;
+  overflow: hidden;
+}
+#gamearea {
+  padding: 7px;
+  height: 100%;
+  position: relative;
+}
+.blackScreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #000;
+  opacity: 1;
+  filter: alpha(opacity=60);
+  z-index: 5;
+  display: block;
+}
+#startgameText1 {
+  margin-top: 75px;
+  width: 100%;
+  font-size: 60px;
+  text-align: center;
+  color: #ffffff;
+  z-index: 8;
+}
+#startgameButton {
+  position: fixed;
+  top: 45%;
+  left: 40%;
+  width: 20%;
+  height: 10%;
+  font-size: 40px;
+  color: #000000;
+  background-color: #ffffff;
+  transform: skewX(-15deg);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 8;
+  transition: 0.4s ease;
+  border-width: 2px;
+  border-style: solid;
+  border-color: #ffffff;
+  z-index: -2;
+  cursor: pointer;
+}
+#startgameButton::before {
+  transition: 0.4s ease;
+  position: absolute;
+  background-color: #ffffff;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  right: 50%;
+  content: "";
+  z-index: -1;
+}
+#startgameButton:hover::before {
+  left: 0;
+  right: 0;
+  background-color: #000000;
+}
+#startgameButton:hover {
+  color: #ffffff;
+}
+#startgameButton .text {
+  font-weight: bolder;
+  width: 90%;
+  text-align: center;
+  transform: skewX(15deg);
+}
+.progressbarbg {
+  width: calc((93% - 330px) / 4);
+  float: left;
+  margin-left: 0.4%;
+  margin-top: 17px;
+  height: 30px;
+  background-color: #ddd;
+  border-radius: 3px;
+  position: relative;
+  display: inline-block;
+}
+.progressbg {
+  width: 60px;
+  float: right;
+  margin-left: 0.4%;
+  margin-top: 0px;
+  height: 30px;
+  background-color: #ddd;
+  border-radius: 3px;
+  position: relative;
+  display: inline-block;
+}
+.progressbarbg div {
+  border-radius: 3px;
+}
+.barfull {
+  position: absolute;
+  display: block;
+  z-index: 2;
+  top: 20%;
+  right: 1%;
+  text-shadow: -1px -1px 2px #000000, 1px -1px 2px #000000, -1px 1px 2px #000000,
+    1px 1px 2px #000000;
+}
+.barfill {
+  position: absolute;
+  display: block;
+  z-index: 2;
+  top: 20%;
+  left: 1%;
+  text-shadow: -1px -1px 2px #000000, 1px -1px 2px #000000, -1px 1px 2px #000000,
+    1px 1px 2px #000000;
+}
+.barsub {
+  margin-top: 5px;
+  font-size: 16px;
+}
+#bar1 {
+  width: 0%;
+  height: 100%;
+  background-color: #fff723;
+  position: absolute;
+  transition: 0.2s ease;
+}
+#bar2 {
+  width: 0%;
+  height: 100%;
+  background-color: #2e76ea;
+  position: absolute;
+  transition: 0.2s ease;
+}
+.bar_goal {
+  height: 100%;
+  width: 0.4%;
+  z-index: 1;
+  background-color: #4f4f4f;
+  position: absolute;
+  display: none;
+  transition: 0.2s ease;
+}
+#goal0 {
+  width: 0.8%;
+  background-color: #ff4f4f;
+}
+#energy_goal {
+  position: relative;
+  background-color: #ddd;
+  width: calc(100% - 3px);
+  border-radius: 3px;
+  float: left;
+}
+#research_spawner {
+  position: relative;
+  background-color: #ddd;
+  width: calc(50% - 3px);
+  border-radius: 3px;
+  float: right;
+  height: 100px;
+}
+#energy_goal_display {
+  width: 80%;
+  font-size: 18px;
+  color: #000000;
+}
+/*Currency Icons*/
+.cur_energy::before {
+  content: "";
+  display: inline-block;
+  background: url("./imgs/low_res/currency_energy.png") no-repeat right
+    top;
+  background-size: contain;
+  width: 16px;
+  height: 16px;
+  position: relative;
+  top: 1px;
+}
+.cur_know_ess::before {
+  content: "";
+  display: inline-block;
+  background: url("./imgs/low_res/currency_know_ess.png") no-repeat
+    right top;
+  background-size: contain;
+  width: 19px; /*Compensate hexagon shape*/
+  height: 19px;
+  position: relative;
+  top: 2px;
+}
+.cur_research::before {
+  content: "";
+  display: inline-block;
+  background: url("./imgs/low_res/currency_research.png") no-repeat
+    right top;
+  background-size: contain;
+  width: 16px;
+  height: 16px;
+  position: relative;
+  top: 1px;
+}
+/*Buildings*/
+#buildingscontainer {
+  background-color: #454545;
+  width: 40%;
+  height: 100%;
+  padding: 5px;
+  border-radius: 3px;
+  float: left;
+  overflow: auto;
+}
+#energyproduction {
+  width: 100%;
+}
+#energystorage {
+  width: 100%;
+}
+#researchproduction {
+  width: 100%;
+}
+#researchstorage {
+  width: 100%;
+}
+.workerbotsAssign {
+  border-radius: 3px;
+  padding: 0px 10px;
+  background-color: #4caf50;
+  font-size: 19px;
+  cursor: pointer;
+}
+.workerbotsRemove {
+  border-radius: 3px;
+  padding: 0px 10px;
+  background-color: #ff0000;
+  font-size: 19px;
+  cursor: pointer;
+}
+.workerbotsAction {
+  float: right;
+}
+/* Achievements */
+.achievementBonusAchieved {
+  color: #ffffff;
+}
+.achievementbox {
+  background-color: #666666;
+  color: #808080;
+  border-width: 1px;
+  border-style: solid;
+  border-color: #ffffff;
+  position: relative;
+  display: inline-block;
+  width: 75px;
+  height: 30px;
+  line-height: 30px;
+  float: left;
+  margin-top: 10px;
+  margin-left: 5px;
+}
+
+.achievementbox .achievementtooltiptext {
+  visibility: hidden;
+  width: 300px;
+  background-color: black;
+  color: #fff;
+  margin-bottom: 5px;
+  text-align: center;
+  padding: 5px 0;
+  border-radius: 6px;
+  font-size: 18px;
+  position: absolute;
+  z-index: 1;
+}
+.achievementbox:hover .achievementtooltiptext {
+  visibility: visible;
+}
+.achievementbox .achievementtooltiptext {
+  width: 300px;
+  bottom: 100%;
+  left: 50%;
+  margin-left: calc(300px / -2);
+}
+.achievementachieved {
+  background-color: #ffffff;
+}
+.achievementGRP {
+  width: 150px;
+  height: 30px;
+  line-height: 30px;
+  margin-top: 10px;
+  text-align: center;
+  background-color: #ffffff;
+  color: #000000;
+  font-size: 15px;
+  float: left;
+}
+#achievementBonusContainer {
+  width: 75%;
+  color: #808080;
+}
+#achievementBonus {
+  width: 100%;
+  height: 20px;
+  border-width: 1px;
+  border-style: solid;
+  border-color: #ffffff;
+}
+#achievementBonusBar {
+  width: 0%;
+  height: 100%;
+  background-color: #ffffff;
+}
+#achievementBonusTarget1 {
+  left: calc(0.74 * 10%);
+  position: absolute;
+}
+#achievementBonusTarget2 {
+  left: calc(0.74 * 20%);
+  position: absolute;
+}
+#achievementBonusTarget3 {
+  left: calc(0.74 * 40%);
+  position: absolute;
+}
+#achievementBonusTarget4 {
+  left: calc(0.74 * 70%);
+  position: absolute;
+}
+#achievementBonusTarget5 {
+  left: calc(0.74 * 100%);
+  position: absolute;
+}
+#BonusList {
+  border-width: 1px;
+  border-style: solid;
+  border-color: #ffffff;
+}
+
+.autobuildingbuy .buytooltiptext {
+  visibility: hidden;
+  width: 250px;
+  background-color: black;
+  color: #fff;
+  margin-bottom: 5px;
+  padding: 5px 5px;
+  border-radius: 6px;
+  font-size: 18px;
+  bottom: 100%;
+  left: 0%;
+  margin-left: calc(100% - 247px);
+  position: absolute;
+  z-index: 10;
+}
+.autobuildingbuy:hover .buytooltiptext {
+  visibility: visible;
+  transition-delay: 0.25s;
+}
+
+.estorebuildingbuy .buytooltiptext {
+  visibility: hidden;
+  width: 250px;
+  background-color: black;
+  color: #fff;
+  margin-bottom: 5px;
+  padding: 5px 5px;
+  border-radius: 6px;
+  font-size: 18px;
+  bottom: 100%;
+  left: 0%;
+  margin-left: calc(100% - 247px);
+  position: absolute;
+  z-index: 10;
+}
+.estorebuildingbuy:hover .buytooltiptext {
+  visibility: visible;
+  transition-delay: 0.25s;
+}
+
+.rProdbuildingbuy .buytooltiptext {
+  visibility: hidden;
+  width: 250px;
+  background-color: black;
+  color: #fff;
+  margin-bottom: 5px;
+  padding: 5px 5px;
+  border-radius: 6px;
+  font-size: 18px;
+  bottom: 100%;
+  left: 0%;
+  margin-left: calc(100% - 247px);
+  position: absolute;
+  z-index: 1;
+}
+.rProdbuildingbuy:hover .buytooltiptext {
+  visibility: visible;
+  transition-delay: 0.25s;
+}
+
+.rStorebuildingbuy .buytooltiptext {
+  visibility: hidden;
+  width: 250px;
+  background-color: black;
+  color: #fff;
+  margin-bottom: 5px;
+  padding: 5px 5px;
+  border-radius: 6px;
+  font-size: 18px;
+  bottom: 100%;
+  left: 0%;
+  margin-left: calc(100% - 247px);
+  position: absolute;
+  z-index: 1;
+}
+.rStorebuildingbuy:hover .buytooltiptext {
+  visibility: visible;
+  transition-delay: 0.25s;
+}
+.details {
+  padding-top: 0px;
+  display: inline-block;
+  margin-left: 5px;
+  font-size: 16px;
+}
+
+#left {
+  float: left;
+  clear: both;
+  display: inline-block;
+  width: auto;
+}
+#right {
+  float: right;
+  display: inline-block;
+}
+#bottom {
+  width: 100%;
+  min-height: 250px;
+  border-width: 1px;
+  border-style: solid;
+  border-color: #ffffff;
+  margin-top: 5px;
+}
+/* research */
+#upgradeboxcontainer {
+  height: 100%;
+  border-width: 1px;
+  border-style: solid;
+  border-color: #ffffff;
+  padding: 5px;
+  display: block;
+  position: relative;
+}
+#overlay2rightarrow {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  width: 30px;
+  height: 30px;
+  border-right: 10px solid #ffffff;
+  border-top: 10px solid #ffffff;
+  transform: rotate(45deg);
+  z-index: 1;
+}
+#overlay2leftarrow {
+  position: absolute;
+  top: 50%;
+  left: 10px;
+  width: 30px;
+  height: 30px;
+  border-left: 10px solid #ffffff;
+  border-bottom: 10px solid #ffffff;
+  transform: rotate(45deg);
+  z-index: 1;
+}
+#researchprogresscontainer {
+  height: 20px;
+  bottom: 20px;
+  position: relative;
+  z-index: 1;
+}
+.researchprogress {
+  background-color: #ffffff;
+  height: 5px;
+  width: 10%;
+  margin-bottom: 5px;
+  display: inline-block;
+  position: relative;
+  z-index: 1;
+}
+.researchprogress div {
+  background-color: #cc33ff;
+  height: 100%;
+}
+#overlay2overflow {
+  height: calc(100% - 120px);
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+}
+#overlay2container {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-user-drag: none;
+  -khtml-user-drag: none;
+  -moz-user-drag: none;
+  -o-user-drag: none;
+  user-drag: none;
+}
+#overlay2zoom {
+  position: absolute;
+  width: 100%;
+  height: auto;
+  transition: 0.2s ease;
+}
+#overlay2contents {
+  min-height: 450px;
+}
+#overlay2research {
+  top: 0;
+  left: 0;
+  position: absolute;
+}
+#DisplayResearchChpt {
+  font-size: 35px;
+  color: #cc33ff;
+}
+.upgradeIcon {
+  border-radius: 5px;
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+}
+.upgradeIcon:hover {
+  transition: border-color 0.3s ease;
+}
+.upgradeIcon .upgradetooltiptext {
+  visibility: hidden;
+  width: 300px;
+  color: #fff;
+  margin-bottom: 8px;
+  text-align: center;
+  padding: 5px 0;
+  border-radius: 6px;
+  font-size: 18px;
+  position: absolute;
+  z-index: 2;
+  -webkit-transition-delay: 0.1s; /* Safari */
+  transition-delay: 0.1s;
+}
+.upgradeBuy {
+  width: 280px;
+  height: 25px;
+  margin-left: 10px;
+  margin-bottom: 5px;
+  margin-top: 10px;
+  font-size: 22px;
+  cursor: pointer;
+  border-width: 2px;
+  border-style: Solid;
+}
+.hide {
+  display: none;
+}
+.notLinked {
+  background-color: #919191;
+}
+.isLinked {
+  background-color: #f7f7f7;
+}
+.notLinkedTooltip {
+  background-color: #919191;
+}
+.isLinkedTooltip {
+  background-color: #000000;
+}
+.buyButton {
+  background-color: #c7c7c7;
+  color: #000000;
+}
+.boughtButton {
+  background-color: #000000;
+  color: #ffffff;
+}
+.IconnotLinked {
+  border-color: #919191;
+  border-style: solid;
+  border-width: 3px;
+  background-color: #919191;
+}
+.IconisLinked {
+  border-color: #000000;
+  border-style: solid;
+  border-width: 3px;
+  background-color: #f7f7f7;
+}
+.upgradeLevel {
+  position: absolute;
+  top: -5px;
+  left: 5px;
+  color: #000000;
+  font-size: 13px;
+}
+.upgradeIcon .upgradebridge {
+  visibility: hidden;
+  top: -15px;
+  left: -3px;
+  width: 50px;
+  height: 11px;
+  color: #fff;
+  text-align: center;
+  font-size: 18px;
+  position: absolute;
+  z-index: 1;
+  -webkit-transition-delay: 0.1s; /* Safari */
+  transition-delay: 0.1s;
+}
+.upgradeIcon:hover .upgradetooltiptext {
+  visibility: visible;
+}
+.upgradeIcon:hover .upgradebridge {
+  visibility: visible;
+}
+.upgradeIcon .upgradetooltiptext {
+  width: 300px;
+  bottom: 100%;
+  left: 0%;
+  margin-left: -3px;
+}
+.red {
+  color: #ff0000 !important;
+}
+.redborder {
+  border-color: #ff0000 !important;
+}
+.errorcost {
+  margin-left: 5px;
+  color: #ff0000;
+  display: none;
+  height: 21.8px;
+}
+.estorebuildings {
+  min-height: 51px;
+  border-width: 1px;
+  border-style: solid;
+  border-color: #ffffff;
+}
+.estorebuildingicons {
+  width: 50px;
+  height: 50px;
+  border-width: 1px;
+  border-style: solid;
+  border-color: #ffffff;
+  float: left;
+}
+.estorebuildingacquired {
+  font-size: 30px;
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  top: 30%;
+  text-align: center;
+  text-shadow: 3px 3px 6px #000000;
+  mix-blend-mode: hard-light;
+  font-weight: bolder;
+}
+.estorebuildingtitles {
+  margin-left: 5px;
+  font-size: 18px;
+}
+.estorebuildingbuy {
+  height: 100%;
+  width: 75px;
+  float: right;
+  background-color: #b6b6b6;
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+}
+.estorebuildingbuytext {
+  font-size: 24px;
+  text-align: center;
+  line-height: 50px;
+}
+
+.rProdbuildings {
+  min-height: 51px;
+  border-width: 1px;
+  border-style: solid;
+  border-color: #ffffff;
+}
+.rProdbuildingicons {
+  width: 50px;
+  height: 50px;
+  border-width: 1px;
+  border-style: solid;
+  border-color: #ffffff;
+  float: left;
+}
+.rProdbuildingacquired {
+  font-size: 30px;
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  top: 30%;
+  text-align: center;
+  text-shadow: 3px 3px 6px #000000;
+  mix-blend-mode: hard-light;
+  font-weight: bolder;
+}
+.rProdbuildingtitles {
+  margin-left: 5px;
+  font-size: 18px;
+}
+.rProdbuildingbuy {
+  height: 100%;
+  width: 75px;
+  float: right;
+  background-color: #b6b6b6;
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+}
+.rProdbuildingbuytext {
+  font-size: 24px;
+  text-align: center;
+  line-height: 50px;
+}
+.autobuildings {
+  position: relative;
+  min-height: 51px;
+  border-width: 1px;
+  border-style: solid;
+  border-color: #ffffff;
+}
+.autobuildingicons {
+  width: 50px;
+  height: 50px;
+  border-width: 1px;
+  border-style: solid;
+  border-color: #ffffff;
+  float: left;
+}
+.autobuildingacquired {
+  font-size: 30px;
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  top: 30%;
+  text-align: center;
+  text-shadow: 3px 3px 6px #000000;
+  mix-blend-mode: hard-light;
+  font-weight: bolder;
+}
+.autobuildingtitles {
+  margin-left: 5px;
+  font-size: 18px;
+}
+.autobuildingbuy {
+  height: 100%;
+  width: 75px;
+  float: right;
+  background-color: #b6b6b6;
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+}
+.autobuildingbuytext {
+  font-size: 24px;
+  text-align: center;
+  line-height: 50px;
+}
+
+.rStorebuildings {
+  min-height: 51px;
+  border-width: 1px;
+  border-style: solid;
+  border-color: #ffffff;
+}
+.rStorebuildingicons {
+  width: 50px;
+  height: 50px;
+  border-width: 1px;
+  border-style: solid;
+  border-color: #ffffff;
+  float: left;
+}
+.rStorebuildingacquired {
+  font-size: 30px;
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  top: 30%;
+  text-align: center;
+  text-shadow: 3px 3px 6px #000000;
+  mix-blend-mode: hard-light;
+  font-weight: bolder;
+}
+.rStorebuildingtitles {
+  margin-left: 5px;
+  font-size: 18px;
+}
+.rStorebuildingbuy {
+  height: 100%;
+  width: 75px;
+  float: right;
+  background-color: #b6b6b6;
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+}
+.rStorebuildingbuytext {
+  font-size: 24px;
+  text-align: center;
+  line-height: 50px;
+}
+.workerbots {
+  min-height: 51px;
+  border-width: 1px;
+  border-style: solid;
+  border-color: #ffffff;
+  width: 100%;
+}
+.workerbotsicons {
+  width: 50px;
+  height: 50px;
+  border-width: 1px;
+  border-style: solid;
+  border-color: #ffffff;
+  float: left;
+}
+.workerbotsacquired {
+  font-size: 50px;
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  top: 30%;
+  text-align: center;
+  text-shadow: 3px 3px 6px #000000;
+  mix-blend-mode: hard-light;
+  font-weight: bolder;
+}
+.workerbotstitles {
+  margin-left: 5px;
+  font-size: 18px;
+  color: #00ff00;
+}
+.workerbotsbuy {
+  height: 100%;
+  width: 75px;
+  float: right;
+  background-color: #b6b6b6;
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+}
+.workerbotsbuytext {
+  font-size: 24px;
+  text-align: center;
+  line-height: 50px;
+}
+#achievementmenu {
+  float: left;
+  height: 30px;
+  width: 240px;
+  background-color: #5f5f5f;
+  margin-bottom: 5px;
+  font-size: 25px;
+  cursor: pointer;
+  text-align: center;
+  vertical-align: middle;
+  padding-top: 3px;
+  color: #999;
+  text-shadow: 0px 1px 0px #444, 0px 0px 4px #000;
+}
+#achievementmenu:hover {
+  color: #fff;
+  text-shadow: 0px 1px 0px #999, 0px 0px 4px #000;
+}
+#settingsmenu {
+  float: right;
+  height: 30px;
+  width: 240px;
+  background-color: #5f5f5f;
+  margin-bottom: 5px;
+  font-size: 25px;
+  cursor: pointer;
+  text-align: center;
+  vertical-align: middle;
+  padding-top: 3px;
+  color: #999;
+  text-shadow: 0px 1px 0px #444, 0px 0px 4px #000;
+}
+#settingsmenu:hover {
+  color: #fff;
+  text-shadow: 0px 1px 0px #999, 0px 0px 4px #000;
+}
+#statsmenu {
+  float: left;
+  height: 30px;
+  width: 240px;
+  background-color: #5f5f5f;
+  margin-bottom: 5px;
+  font-size: 25px;
+  cursor: pointer;
+  text-align: center;
+  vertical-align: middle;
+  padding-top: 3px;
+  color: #999;
+  text-shadow: 0px 1px 0px #444, 0px 0px 4px #000;
+}
+#statsmenu:hover {
+  color: #fff;
+  text-shadow: 0px 1px 0px #999, 0px 0px 4px #000;
+}
+#unlockedupgradesmenu {
+  float: right;
+  height: 30px;
+  width: 240px;
+  background-color: #5f5f5f;
+  margin-bottom: 5px;
+  font-size: 25px;
+  cursor: pointer;
+  text-align: center;
+  vertical-align: middle;
+  padding-top: 3px;
+  color: #999;
+  text-shadow: 0px 1px 0px #444, 0px 0px 4px #000;
+}
+#unlockedupgradesmenu:hover {
+  color: #fff;
+  text-shadow: 0px 1px 0px #999, 0px 0px 4px #000;
+}
+.highlighted {
+  color: #fff !important;
+  text-shadow: 0px 1px 0px #999, 0px 0px 4px #000 !important;
+}
+#achievement {
+  display: block;
+  padding: 5px;
+}
+#stats {
+  display: none;
+  padding: 5px;
+}
+#settings {
+  display: none;
+  padding: 5px;
+}
+#unlockedupgrades {
+  display: none;
+  padding: 5px;
+}
+#numberformat,
+#savebox,
+#exportImportSave,
+#debugclick,
+#hardreset {
+  background-color: #535353;
+  width: auto;
+  height: 30px;
+  display: inline-block;
+  text-align: center;
+  font-size: 24px;
+  vertical-align: middle;
+  padding: 3px;
+  border-radius: 5px;
+  border-width: 2px;
+  border-style: solid;
+  border-color: #535353;
+  cursor: pointer;
+}
+#numberformat:hover,
+#savebox:hover,
+#exportImportSave:hover,
+#debugclick:hover,
+#hardreset:hover {
+  border-width: 2px;
+  border-style: solid;
+  border-color: #ffffff;
+}
+#DebugCode {
+  height: 30px;
+  float: left;
+  font-size: 22px;
+}
+#ImportExportField {
+  min-width: 90%;
+  max-width: 90%;
+  min-height: 180px;
+  max-height: 180px;
+  margin: auto;
+}
+#selectAll {
+  cursor: pointer;
+}
+#export {
+  height: 25px;
+  background-color: #9c9c9c;
+  width: 45%;
+  float: left;
+  margin-left: 15px;
+  border-radius: 3px;
+  cursor: pointer;
+}
+#import {
+  height: 25px;
+  background-color: #9c9c9c;
+  width: 44%;
+  float: right;
+  margin-right: 15px;
+  border-radius: 3px;
+  cursor: pointer;
+}
+#hardreset {
+  color: #ff0000;
+}
+#hardreset:hover {
+  border-color: #ff0000;
+}
+#cover {
+  position: fixed;
+  top: 0;
+  left: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 5;
+  width: 100%;
+  height: 100%;
+  display: none;
+}
+
+#hardresetdialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: 300px;
+  height: 200px;
+  margin-left: -150px;
+  margin-top: -100px;
+  background-color: #f2f2f2;
+  text-align: center;
+  display: none;
+  border-radius: 5px;
+  z-index: 10;
+  outline: 9999px solid rgba(0, 0, 0, 0.5);
+}
+#SaveDialog {
+  position: fixed;
+  color: #000000;
+  padding: 5px;
+  top: 50%;
+  left: 50%;
+  width: 400px;
+  height: 300px;
+  margin-left: -200px;
+  margin-top: -150px;
+  background-color: #f2f2f2;
+  text-align: center;
+  display: none;
+  border-radius: 5px;
+  z-index: 10;
+  outline: 9999px solid rgba(0, 0, 0, 0.5);
+}
+#canceldialog {
+  cursor: pointer;
+  display: block;
+  position: absolute;
+  top: 3px;
+  right: 2px;
+  color: black;
+  height: 30px;
+  width: 35px;
+  font-size: 30px;
+  text-decoration: none;
+  text-align: center;
+  font-weight: bold;
+}
+#canceldialog2 {
+  cursor: pointer;
+  display: block;
+  position: absolute;
+  top: 3px;
+  right: 2px;
+  color: black;
+  height: 30px;
+  width: 35px;
+  font-size: 30px;
+  text-decoration: none;
+  text-align: center;
+  font-weight: bold;
+}
+.canceldialogCSS {
+  cursor: pointer;
+  display: block;
+  right: 0px;
+  position: absolute;
+  margin-right: 5px;
+  color: #ffffff;
+  height: 30px;
+  width: 35px;
+  font-size: 30px;
+  text-decoration: none;
+  text-align: center;
+  font-weight: bold;
+}
+#yes {
+  width: 100px;
+  padding: 0px;
+  background-color: #d9d9d9;
+  font-weight: bold;
+  text-decoration: none;
+  color: #000000;
+  height: 25px;
+  border-radius: 5px;
+  cursor: pointer;
+  float: left;
+  margin-left: 30px;
+  margin-top: 40px;
+}
+#no:hover {
+  border-color: #ffffff;
+  border-width: 2px;
+  border-style: solid;
+}
+#yes:hover {
+  border-color: #ff0000;
+  border-width: 2px;
+  border-style: solid;
+}
+#no {
+  width: 100px;
+  padding: 0px;
+  background-color: #d9d9d9;
+  font-weight: bold;
+  text-decoration: none;
+  color: #000000;
+  height: 25px;
+  border-radius: 5px;
+  cursor: pointer;
+  float: right;
+  margin-right: 30px;
+  margin-top: 40px;
+}
+#infobox {
+  color: #ff0000;
+  margin-top: 25px;
+}
+.companies {
+  border-radius: 3px;
+  background-color: #ddd;
+  width: 100%;
+  height: 100px;
+}
+.notificationclass {
+  background-color: #000000;
+  margin-bottom: 5px;
+  border-radius: 5px;
+}
+#notificationremoveall {
+  position: fixed;
+  color: #ffffff;
+  bottom: 5px;
+  left: 50%;
+  width: 20px;
+  font-size: 25px;
+  margin-left: 250px;
+  margin-top: -150px;
+  text-align: center;
+  cursor: pointer;
+  display: block;
+  border-radius: 5px;
+  /* needed styles for the overlay */
+  z-index: 9; /* keep on top of other elements on the page */
+}
+#bottomcontainer {
+  position: fixed;
+  color: #ffffff;
+  padding: 5px;
+  bottom: 0px;
+  left: 50%;
+  width: 500px;
+  margin-left: -250px;
+  margin-top: -150px;
+  text-align: center;
+  display: block;
+  border-radius: 5px;
+  /* needed styles for the overlay */
+  z-index: 9; /* keep on top of other elements on the page */
+}
+#tabB {
+  background: rgb(57, 57, 60);
+  background: linear-gradient(
+    90deg,
+    rgba(57, 57, 60, 1) 0%,
+    rgba(69, 69, 69, 1) 49%,
+    rgba(55, 55, 59, 1) 100%
+  );
+}
+.tabUnlocked {
+  cursor: pointer !important;
+}
+.tabUnlocked .tabsicon {
+  display: block;
+}
+.tabs:not(.tabUnlocked) .tabslocked {
+  display: block;
+}
+.tabsicon {
+  display: none;
+}
+.tabslocked {
+  margin-top: 18px;
+  font-size: 40px;
+  display: none;
+}
+.tabbar {
+  list-style: none;
+  display: inline;
+}
+.tabbar p {
+  color: black;
+  display: block;
+  margin: 0.4% 0.4%;
+  position: relative;
+  text-decoration: none;
+  transition: background-color 0.1s ease-in-out;
+  float: left;
+  font-size: 17px;
+  text-align: center;
+  width: 55px;
+  height: 55px;
+  padding: 1px 1px 1px 1px;
+  border-color: #000000;
+  border-style: solid;
+  border-width: 2px;
+  border-radius: 5px;
+  cursor: not-allowed;
+}
+#menuF {
+  position: absolute;
+  right: 8px;
+  background-color: #000000;
+  width: 55px;
+  height: 55px;
+  padding: 1px 1px 1px 1px;
+  border-color: #ffffff;
+  border-style: solid;
+  border-width: 2px;
+  border-radius: 5px;
+}
+.notOn:hover {
+  background-color: #ccc;
+}
+.isOn:hover {
+  background-color: #ff2121;
+}
+.isOn {
+  background-color: #f44842;
+  color: #ffffff;
+}
+.notOn {
+  background-color: #ffffff;
+}
+#resourcebar {
+  width: 100%;
+  height: 22px;
+  background-color: #747474;
+  padding-left: 5px;
+  font-size: 20px;
+  color: #ffffff;
+  position: relative;
+}
+.range-slider__range {
+  -webkit-appearance: none;
+  width: 150px;
+  height: 10px;
+  border-radius: 5px;
+  background: #ffffff;
+  outline: none;
+  padding: 0;
+  margin: 0;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  border: 1px solid #000000;
+  height: 20px;
+  width: 20px;
+  border-radius: 10px;
+  background: #ffffff;
+  cursor: pointer;
+  margin-top: 0px; /* You need to specify a margin in Chrome, but in Firefox and IE it is automatic */
+  box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d; /* Add cool effects to your sliders! */
+}
+
+input[type="range"]:hover::-webkit-slider-thumb,
+input[type="range"]:active::-webkit-slider-thumb {
+  background: #1abc9c;
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border: 0;
+  border-radius: 50%;
+  background: #2c3e50;
+  cursor: pointer;
+  transition: background 0.15s ease-in-out;
+
+  &:hover {
+    background: #1abc9c;
+  }
+}
+
+input[type="range"]:active::-moz-range-thumb {
+  background: #1abc9c;
+}
+.range-slider__value {
+  display: inline-block;
+  position: relative;
+  width: 50px;
+  color: #000000;
+  line-height: 20px;
+  text-align: center;
+  border-radius: 3px;
+  background: #ffffff;
+  padding: 0px 0px;
+  margin-left: 8px;
+}
+.transitionease {
+  transition: 0.5s ease;
+}
+#home_graphics canvas {
+  width: 100vw;
+  height: 100vh;
+  display: block;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: -9999;
+}
+
+</style>
+<script type="text/javascript"src="./js/save.js"></script>
+<script type="text/javascript"src="./js/formatting.js"></script>
+<script type="text/javascript"src="./js/lz-string.js"></script>
+<script type="text/javascript" src="./minigame2.js"></script>
+<link rel="icon" 
+      type="image/png" 
+      href="./favicon.png">
+</head>
+<body>
+  <div id="gamearea">
+    <div class="blackScreen">
+      <div id="startgameText1">Robot Factory </div>
+      <div id="startgameButton">
+        <div class="text">Start game</div>
+      </div>
+      <div id="startgameFooter">
+        <a href=" /"></a>
+      </div>
+    </div>
+    <div id="hardresetdialog">
+      <div id="canceldialog">&times;</div>
+      <div id="infobox"> Do you really want to delete this save? <p style="font-size:18px;color:#cccccc; ">"What's done can't be undone."
+        <p>
+          <br>
+        <div id="yes">Yes</div>
+        <div id="no">No</div>
+      </div>
+    </div>
+    <div id="SaveDialog">
+      <div id="canceldialog2">&times;</div>
+      <div id="infobox2">
+        <br>
+        <b style="font-size:24px;">Export Save</b>
+        <br>
+        <textarea id="ImportExportField"></textarea>
+        <br>
+        <div id="selectAll">Select All</div>
+        <div id="export">Export</div>
+        <div id="import">Import</div>
+      </div>
+    </div>
+    <div id="home_graphics"></div>
+    <!-- TABS -->
+    <ul class="tabbar">
+      <li>
+        <p id="menuA" class="tabs">
+          <img src="./imgs/home.png" class="tabsicon divsImg" id="" style="width:50px;height:50px;">
+        </p>
+      </li>
+      <li>
+        <p id="menuB" class="tabs">
+          <img src="./imgs/low_res/currency_research.png" class="tabsicon divsImg" id="" style="width:48px;height:48px;">
+          <span class="tabslocked">🔒</span>
+        </p>
+      </li>
+      <li>
+        <p id="menuC" class="tabs">
+          <span class="tabslocked">🔒</span>
+        </p>
+      </li>
+      <li>
+        <p id="menuD" class="tabs">
+          <img src="./imgs/deal.png" class="tabsicon divsImg" id="" style="width:50px;height:50px;">
+          <span class="tabslocked">🔒</span>
+        </p>
+      </li>
+      <li>
+        <p id="menuE" class="tabs">
+          <img src="./imgs/energygoal.png" class="tabsicon divsImg" id="" style="width:50px;height:50px;">
+          <span class="tabslocked">🔒</span>
+        </p>
+      </li>
+    </ul>
+    <div id="bar1container" class="progressbarbg">
+      <div id="bar1"></div>
+      <div class="barfill">
+        <div class="thetotal cur_energy"></div>
+      </div>
+      <div class="barfull">
+        <div class="energycap cur_energy"></div>
+        <div class="barsub">
+          <span>( <span id="epsgain"></span>/s </span>)
+        </div>
+      </div>
+    </div>
+    <div id="bar2container" class="progressbarbg">
+      <div id="bar2"></div>
+      <div class="barfill">
+        <div class="RealResearchPoints cur_research"></div>
+      </div>
+      <div class="barfull">
+        <div class="RealResearchPointscap cur_research"></div>
+        <div class="barsub">
+          <span>( <span id="rProdgain"></span>/s) </span>
+        </div>
+      </div>
+    </div>
+    <div id="bar3container" class="progressbarbg">
+      <div id="bar3"></div>
+      <div class="barfill">
+        <div class="RealResearchPoints cur_research"></div>
+      </div>
+      <div class="barfull">
+        <div class="RealResearchPointscap cur_research"></div>
+      </div>
+    </div>
+    <div id="item4container" class="progressbarbg">
+      <div class="barfill">
+        <div class="workerbotsINACTIVE" style=""></div>
+      </div>
+      <div class="barfull">
+        <div class="totalworkerbots" style=""></div>
+      </div>
+    </div>
+    <p id="menuF" class="tabs">
+      <img src="./imgs/setting.png" class="tabsicon divsImg" id="" style="width:50px;height:50px;">
+    </p>
+    <div class="clear"></div>
+    <div id="item4container" class="progressbg">
+      <div class="barfill">
+        <div style="font-size:16px;" class="researchpoint cur_know_ess"></div>
+      </div>
+      <div class="barfull">
+        <div class=" "></div>
+      </div>
+    </div>
+    <div class="clear"></div>
+    <div id="tabA" class="tabClass">
+      <div class="clear"></div>
+      <div id="buildingscontainer">
+        <div id="energyproduction">
+          <b>Energy Production </b>
+          <span>Assigned: <span id="workerbotsT1"></span>
+          </span>
+          <span class="workerbotsAction">
+            <span id="workerbotsA1" class="workerbotsAssign">+</span>
+            <span id="workerbotsR1" class="workerbotsRemove">-</span>
+          </span>
+          <div class="clear"></div>
+          <div id="autobuilding1" class="autobuildings">
+            <div class="clear"></div>
+            <div id="autobuilding1icon" class="autobuildingicons">
+              <div style="position:relative; display: inline-block;">
+                <img src="./imgs/spatialGenT1.png" class="divsImg" id="" style="width:50px;height:50px;display:block;">
+                <span class="autobuildingacquired" id="egnum0000"></span>
+              </div>
+            </div>
+            <span class="autobuildingtitles">Spatial Energy Gen1 </span>
+            <div id="autobuy0000" class="autobuildingbuy">
+              <p class="autobuildingbuytext">Buy</p>
+              <span class="buytooltiptext">
+                <span>Increases <span class="cur_energy">/s</span> by </span>
+                <b>
+                  <span id="epsplus1"></span>
+                </b>
+                <span> each.</span>
+                <span class="lvl1energybuildingtooltip hide">
+                  <br>
+                  <span>Increases <span class="cur_energy">/s</span> by </span>
+                  <b>
+                    <span id="epstotal1"></span>
+                  </b>
+                  <span> in total.</span>
+                  <br>
+                  <span>(</span>
+                  <b>
+                    <span id="autopercentage1"></span>
+                  </b>
+                  <span>% of total)</span>
+                </span>
+              </span>
+            </div>
+            <p></p>
+            <span class="details">
+              <span id="egcost0000" class="cur_energy"></span>
+              <span id="autoerrorcost0000" class="errorcost">Insufficient items</span>
+            </span>
+          </div>
+          <div class="clear"></div>
+          <div id="autobuilding2" class="autobuildings hide">
+            <div class="clear"></div>
+            <div id="autobuilding2icon" class="autobuildingicons">
+              <div style="position:relative; display: inline-block;">
+                <img src="./imgs/spatialGenT2.png" class="divsImg" id="" style="width:50px;height:50px;display:block;">
+                <span class="autobuildingacquired" id="egnum0001"></span>
+              </div>
+            </div>
+            <span class="autobuildingtitles">Spatial Energy Gen2 </span>
+            <div id="autobuy0001" class="autobuildingbuy">
+              <p class="autobuildingbuytext">Buy</p>
+              <span class="buytooltiptext">
+                <span>Increases <span class="cur_energy">/s</span> by </span>
+                <b>
+                  <span id="epsplus2"></span>
+                </b>
+                <span> each.</span>
+                <span class="lvl1energybuildingtooltip hide">
+                  <br>
+                  <span>Increases <span class="cur_energy">/s</span> by </span>
+                  <b>
+                    <span id="epstotal2"></span>
+                  </b>
+                  <span> in total.</span>
+                  <br>
+                  <span>(</span>
+                  <b>
+                    <span id="autopercentage2"></span>
+                  </b>
+                  <span>% of total)</span>
+                </span>
+              </span>
+            </div>
+            <p></p>
+            <span class="details">
+              <span id="egcost0001" class="cur_energy"></span>
+              <span id="autoerrorcost0001" class="errorcost">Insufficient items</span>
+          </div>
+          <div class="clear"></div>
+          <div id="autobuilding3" class="autobuildings hide">
+            <div class="clear"></div>
+            <div id="autobuilding3icon" class="autobuildingicons">
+              <div style="position:relative; display: inline-block;">
+                <img src="./imgs/PlasmaGen1.png" class="divsImg" id="" style="width:50px;height:50px;display:block;">
+                <span class="autobuildingacquired" id="egnum0002"></span>
+              </div>
+            </div>
+            <span class="autobuildingtitles">Plasma Energy Gen1 </span>
+            <div id="autobuy0002" class="autobuildingbuy">
+              <p class="autobuildingbuytext">Buy</p>
+              <span class="buytooltiptext">
+                <span>Increases <span class="cur_energy">/s</span> by </span>
+                <b>
+                  <span id="epsplus3"></span>
+                </b>
+                <span> each.</span>
+                <span class="lvl1energybuildingtooltip hide">
+                  <br>
+                  <span>Increases <span class="cur_energy">/s</span> by </span>
+                  <b>
+                    <span id="epstotal3"></span>
+                  </b>
+                  <span> in total.</span>
+                  <br>
+                  <span>(</span>
+                  <b>
+                    <span id="autopercentage3"></span>
+                  </b>
+                  <span>% of total)</span>
+                </span>
+              </span>
+            </div>
+            <p></p>
+            <span class="details">
+              <span></span>
+              <span id="egcost0002" class="cur_energy"></span>
+              <span id="autoerrorcost0002" class="errorcost">Insufficient items</span>
+          </div>
+          <div class="clear"></div>
+          <div id="autobuilding4" class="autobuildings hide">
+            <div class="clear"></div>
+            <div id="autobuilding4icon" class="autobuildingicons">
+              <div style="position:relative; display: inline-block;">
+                <img src="./imgs/PlasmaGen2.png" class="divsImg" id="" style="width:50px;height:50px;display:block;">
+                <span class="autobuildingacquired" id="egnum0003"></span>
+              </div>
+            </div>
+            <span class="autobuildingtitles">Plasma Energy Gen2 </span>
+            <div id="autobuy0003" class="autobuildingbuy">
+              <p class="autobuildingbuytext">Buy</p>
+              <span class="buytooltiptext">
+                <span>Increases <span class="cur_energy">/s</span> by </span>
+                <b>
+                  <span id="epsplus4"></span>
+                </b>
+                <span> each.</span>
+                <span class="lvl1energybuildingtooltip hide">
+                  <br>
+                  <span>Increases <span class="cur_energy">/s</span> by </span>
+                  <b>
+                    <span id="epstotal4"></span>
+                  </b>
+                  <span> in total.</span>
+                  <br>
+                  <span>(</span>
+                  <b>
+                    <span id="autopercentage4"></span>
+                  </b>
+                  <span>% of total)</span>
+                </span>
+              </span>
+            </div>
+            <p></p>
+            <span class="details">
+              <span id="egcost0003" class="cur_energy"></span>
+              <span id="autoerrorcost0003" class="errorcost">Insufficient items</span>
+            </span>
+          </div>
+        </div>
+        <div id="energystorage">
+          <b>Energy Storage </b>
+          <span>Assigned: <span id="workerbotsT2"></span>
+          </span>
+          <span class="workerbotsAction">
+            <span id="workerbotsA2" class="workerbotsAssign">+</span>
+            <span id="workerbotsR2" class="workerbotsRemove">-</span>
+          </span>
+          <div class="clear"></div>
+          <div id="estorebuilding1" class="estorebuildings">
+            <div class="clear"></div>
+            <div id="estorebuilding1icon" class="estorebuildingicons">
+              <div style="position:relative; display: inline-block;">
+                <img src="./imgs/batteriesGen1.png" class="divsImg" id="" style="width:50px;height:50px;display:block;">
+                <span class="estorebuildingacquired" id="Estorenum0000"></span>
+              </div>
+            </div>
+            <span class="estorebuildingtitles">Batteries Gen1</span>
+            <div id="estorebuy0000" class="estorebuildingbuy">
+              <p class="estorebuildingbuytext">Buy</p>
+              <span class="buytooltiptext">
+                <span>Increases <span class="cur_energy">storage</span> by </span>
+                <b>
+                  <span id="estoreplus1"></span>
+                </b>
+                <span> each.</span>
+                <span class="lvl1energybuildingtooltip hide">
+                  <br>
+                  <span>Increases <span class="cur_energy">storage</span> by </span>
+                  <b>
+                    <span id="estoretotal1"></span>
+                  </b>
+                  <span> in total.</span>
+                  <br>
+                  <span>(</span>
+                  <b>
+                    <span id="estorepercentage1"></span>
+                  </b>
+                  <span>% of total)</span>
+                </span>
+              </span>
+            </div>
+            <p></p>
+            <span class="details">
+              <span id="Estorecost0000" class="cur_energy"></span>
+              <span id="Estoreerrorcost0000" class="errorcost">Insufficient items</span>
+            </span>
+            <div style="float:right">Synergy: <b>100000%</b>
+            </div>
+          </div>
+          <div class="clear"></div>
+          <div id="estorebuilding2" class="estorebuildings hide">
+            <div class="clear"></div>
+            <div id="estorebuilding2icon" class="estorebuildingicons">
+              <div style="position:relative; display: inline-block;">
+                <img src="./imgs/batteriesGen2.png" class="divsImg" id="" style="width:50px;height:50px;display:block;">
+                <span class="estorebuildingacquired" id="Estorenum0001"></span>
+              </div>
+            </div>
+            <span class="estorebuildingtitles">Batteries Gen2</span>
+            <div id="estorebuy0001" class="estorebuildingbuy">
+              <p class="estorebuildingbuytext">Buy</p>
+              <span class="buytooltiptext">
+                <span>Increases <span class="cur_energy">storage</span> by </span>
+                <b>
+                  <span id="estoreplus2"></span>
+                </b>
+                <span> each.</span>
+                <span class="lvl1energybuildingtooltip hide">
+                  <br>
+                  <span>Increases <span class="cur_energy">storage</span> by </span>
+                  <b>
+                    <span id="estoretotal2"></span>
+                  </b>
+                  <span> in total.</span>
+                  <br>
+                  <span>(</span>
+                  <b>
+                    <span id="estorepercentage2"></span>
+                  </b>
+                  <span>% of total)</span>
+                </span>
+              </span>
+            </div>
+            <p></p>
+            <span class="details">
+              <span id="Estorecost0001" class="cur_energy"></span>
+              <span id="Estoreerrorcost0001" class="errorcost">Insufficient items</span>
+            </span>
+          </div>
+          <div class="clear"></div>
+          <div id="estorebuilding3" class="estorebuildings hide">
+            <div class="clear"></div>
+            <div id="estorebuilding3icon" class="estorebuildingicons">
+              <div style="position:relative; display: inline-block;">
+                <img src="./imgs/densefieldGen1.png" class="divsImg" id="" style="width:50px;height:50px;display:block;">
+                <span class="estorebuildingacquired" id="Estorenum0002"></span>
+              </div>
+            </div>
+            <span class="estorebuildingtitles">Dense field storage Gen1</span>
+            <div id="estorebuy0002" class="estorebuildingbuy">
+              <p class="estorebuildingbuytext">Buy</p>
+              <span class="buytooltiptext">
+                <span>Increases <span class="cur_energy">storage</span> by </span>
+                <b>
+                  <span id="estoreplus3"></span>
+                </b>
+                <span> each.</span>
+                <span class="lvl1energybuildingtooltip hide">
+                  <br>
+                  <span>Increases <span class="cur_energy">storage</span> by </span>
+                  <b>
+                    <span id="estoretotal3"></span>
+                  </b>
+                  <span> in total.</span>
+                  <br>
+                  <span>(</span>
+                  <b>
+                    <span id="estorepercentage3"></span>
+                  </b>
+                  <span>% of total)</span>
+                </span>
+              </span>
+            </div>
+            <p></p>
+            <span class="details">
+              <span id="Estorecost0002" class="cur_energy"></span>
+              <span id="Estoreerrorcost0002" class="errorcost">Insufficient items</span>
+            </span>
+            <div class="clear"></div>
+          </div>
+          <div id="estorebuilding4" class="estorebuildings hide">
+            <div class="clear"></div>
+            <div id="estorebuilding4icon" class="estorebuildingicons">
+              <div style="position:relative; display: inline-block;">
+                <img src="./imgs/densefieldGen2.png" class="divsImg" id="" style="width:50px;height:50px;display:block;">
+                <span class="estorebuildingacquired" id="Estorenum0003"></span>
+              </div>
+            </div>
+            <span class="estorebuildingtitles">Dense field storage Gen2</span>
+            <div id="estorebuy0003" class="estorebuildingbuy">
+              <p class="estorebuildingbuytext">Buy</p>
+              <span class="buytooltiptext">
+                <span>Increases <span class="cur_energy">storage</span> by </span>
+                <b>
+                  <span id="estoreplus4"></span>
+                </b>
+                <span> each.</span>
+                <span class="lvl1energybuildingtooltip hide">
+                  <br>
+                  <span>Increases <span class="cur_energy">storage</span> by </span>
+                  <b>
+                    <span id="estoretotal4"></span>
+                  </b>
+                  <span> in total.</span>
+                  <br>
+                  <span>(</span>
+                  <b>
+                    <span id="estorepercentage4"></span>
+                  </b>
+                  <span>% of total)</span>
+                </span>
+              </span>
+            </div>
+            <p></p>
+            <span class="details">
+              <span id="Estorecost0003" class="cur_energy"></span>
+              <span id="Estoreerrorcost0003" class="errorcost">Insufficient items</span>
+            </span>
+          </div>
+        </div>
+        <div class="clear"></div>
+        <div id="researchproduction" class="hide">
+          <b style="color:#FF00FF">Research Extraction </b>
+          <span>Assigned: <span id="workerbotsT3"></span>
+          </span>
+          <span class="workerbotsAction">
+            <span id="workerbotsA3" class="workerbotsAssign">+</span>
+            <span id="workerbotsR3" class="workerbotsRemove">-</span>
+          </span>
+          <div id="rProdbuilding1" class="rProdbuildings">
+            <div class="clear"></div>
+            <div id="rProdbuilding1icon" class="rProdbuildingicons">
+              <div style="position:relative; display: inline-block;">
+                <img src="./imgs/ResearchConversionFacility.png" class="divsImg" id="" style="width:50px;height:50px;display:block;">
+                <span class="rProdbuildingacquired" id="rProdnum0000"></span>
+              </div>
+            </div>
+            <span class="rProdbuildingtitles">Research extraction facility</span>
+            <div id="rProdbuy0000" class="rProdbuildingbuy">
+              <p class="rProdbuildingbuytext">Buy</p>
+              <span class="buytooltiptext">
+                <span>Increases <span class="cur_research"></span> extraction from <span class="cur_know_ess"></span> by </span>
+                <b>
+                  <span id="rProdplus1"></span>
+                </b>
+                <span> each.</span>
+                <span class="lvl1researchbuildingtooltip hide">
+                  <br>
+                  <span>Increases <span class="cur_research"></span> extraction from <span class="cur_know_ess"></span> by </span>
+                  <b>
+                    <span id="rProdtotal1"></span>
+                  </b>
+                  <span> in total.</span>
+                  <br>
+                  <span>(</span>
+                  <b>
+                    <span id="rProdpercentage1"></span>
+                  </b>
+                  <span>% of total)</span>
+                </span>
+              </span>
+            </div>
+            <p></p>
+            <span class="details">
+              <span id="rProdcost0000" class="cur_energy"></span>
+              <span id="rProderrorcost0000" class="errorcost">Insufficient items</span>
+            </span>
+            <div class="clear"></div>
+          </div>
+        </div>
+        <div id="researchstorage" class="hide">
+          <b style="color:#FF00FF">Research Storage</b>
+          <span>Assigned: <span id="workerbotsT4"></span>
+          </span>
+          <span class="workerbotsAction">
+            <span id="workerbotsA4" class="workerbotsAssign">+</span>
+            <span id="workerbotsR4" class="workerbotsRemove">-</span>
+          </span>
+          <div id="rStorebuilding1" class="rStorebuildings">
+            <div class="clear"></div>
+            <div id="rStorebuilding1icon" class="rStorebuildingicons">
+              <div style="position:relative; display: inline-block;">
+                <img src="./imgs/ResearchProductionFacility.png" class="divsImg" id="" style="width:50px;height:50px;display:block;">
+                <span class="rStorebuildingacquired" id="rStorenum0000"></span>
+              </div>
+            </div>
+            <span class="rStorebuildingtitles">Research storage facility</span>
+            <div id="rStorebuy0000" class="rStorebuildingbuy">
+              <p class="rStorebuildingbuytext">Buy</p>
+              <span class="buytooltiptext">
+                <span>Increases <span class="cur_research"></span>storage by </span>
+                <b>
+                  <span id="rStoreplus1"></span>
+                </b>
+                <span> each.</span>
+                <span class="lvl1researchbuildingtooltip hide">
+                  <br>
+                  <span>Increases <span class="cur_research"></span>storage by </span>
+                  <b>
+                    <span id="rStoretotal1"></span>
+                  </b>
+                  <span> in total.</span>
+                  <br>
+                  <span>(</span>
+                  <b>
+                    <span id="rStorepercentage1"></span>
+                  </b>
+                  <span>% of total)</span>
+                </span>
+              </span>
+            </div>
+            <p></p>
+            <span class="details">
+              <span id="rStorecost0000" class="cur_energy"></span>
+              <span id="rStoreerrorcost0000" class="errorcost">Insufficient items</span>
+            </span>
+            <div class="clear"></div>
+          </div>
+        </div>
+        <div class="clear"></div>
+        <div id="workerbot" class="workerbots hide">
+          <div id="workerbotsicon" class="workerbotsicons">
+            <img src="./imgs/bot.png" class="divsImg" id="" style="width:50px;height:50px;">
+          </div>
+          <span class="workerbotstitles">Worker bots</span>
+          <div id="workerbotsbuy0000" class="workerbotsbuy">
+            <p class="workerbotsbuytext">Buy</p>
+          </div>
+          <p></p>
+          <span class="details">
+            <span></span>
+            <span id="workerbotsEcost0000" class="cur_energy"></span>
+            <span id="workerbotsRcost0000" class="cur_research"></span>
+            <span id="workerbotserrorcost0000" class="errorcost">Insufficient items</span>
+            <span> Acquired:</span>
+            <span class="totalworkerbots"></span>
+          </span>
+        </div>
+      </div>
+      <div id="statistics"></div>
+      <div class="clear"></div>
+    </div>
+    <div id="tabB" class="tabClass">
+      <div id="upgradeboxcontainer">
+        <div id="overlay">
+          <br>
+          <h2>Research</h2>
+          <p>Technological advancement </p>
+          <div class="clear"></div>
+          <span id="researchpoint" style="">
+            <span class="researchpoint cur_know_ess" style=""></span>
+          </span>
+          <->
+            <span class="RealResearchPoints cur_research"></span>/ <span class="RealResearchPointscap"></span>
+            <div class="clear"></div>
+            <div class="range-slider">
+              <input class="range-slider__range" id="range-slider__range1" type="range" value="100" min="70" max="200">
+              <span class="range-slider__value" id="range-slider__value1">err</span>
+            </div>
+            <div style="font-size:30px;">Chapter <span id="DisplayResearchChpt"></span>
+            </div>
+        </div>
+        <div class="clear"></div>
+        <div id="overlay2leftarrow"></div>
+        <div id="overlay2rightarrow"></div>
+        <div id="overlay2overflow">
+          <div id="overlay2container">
+            <div id="overlay2zoom">
+              <div id="overlay2contents">
+                <div id="overlay2research"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="researchprogresscontainer">
+          <div style="float:left; display:block; margin-right:10px;">PROGRESS</div>
+          <div class="researchprogress">
+            <div id="researchprogressbar1"></div>
+          </div>
+          <div class="researchprogress">
+            <div id="researchprogressbar2"></div>
+          </div>
+          <div class="researchprogress">
+            <div id="researchprogressbar3"></div>
+          </div>
+          <div class="researchprogress">
+            <div id="researchprogressbar4"></div>
+          </div>
+          <div class="researchprogress">
+            <div id="researchprogressbar5"></div>
+          </div>
+        </div>
+        <div class="clear"></div>
+      </div>
+    </div>
+    <div id="tabC" class="tabClass"></div>
+    <div id="tabD" class="tabClass">
+      <br>
+      <div style="float:left">
+        <h2>Deals</h2>
+        <p>Make deals with leading companies</p>
+      </div>
+      <div class="clear"></div>
+      <div>
+        <div class="companies">
+          <img src="./imgs/companyA.png" class="divsImg" id="" style="width:100px;height:100px;display:block;">
+        </div>
+        <br>
+        <div class="companies">
+          <img src="./imgs/companyB.png" class="divsImg" id="" style="width:100px;height:100px;display:block;">
+        </div>
+        <br>
+        <div class="companies">
+          <img src="./imgs/companyC.png" class="divsImg" id="" style="width:100px;height:100px;display:block;">
+        </div>
+      </div>
+    </div>
+    <div id="tabE" class="tabClass">
+      <br>
+      <h2>Achievements</h2>
+      <p>See your your achievements here, achievements can give bonuses.</p>
+      <div id="achievementnotice"></div>
+      <div id="achievementEnergyGoalGRP" class="achievementGRP">Energy Goals</div>
+      <div class="clear"></div>
+      <div id="achievementTotalBuildingsGRP" class="achievementGRP">Total buildings</div>
+      <div class="clear"></div>
+      <div id="achievementTotalResearchGRP" class="achievementGRP">Total research levels</div>
+      <div class="clear"></div>
+      <div id="achievementTotalworkerbotsGRP" class="achievementGRP">Total Worker Bots</div>
+      <div class="clear"></div>
+      <div id="achievementSpecialtyGRP" class="achievementGRP">Specialty</div>
+      <br>
+      <div class="clear"></div>
+      <div id="energy_goal">
+        <div style="float:left">
+          <img src="./imgs/energygoal.png" class="divsImg" id="" style="width:50px;height:50px;display:block;float:left;">
+          <div style="color:#000000;margin-top:50px; margin-left:5px;"> Lvl: <span class="EnergyGoalLevel"></span>
+          </div>
+        </div>
+        <table id="energy_goal_display">
+          <tr>
+            <th>Energy Lvl</th>
+            <th>Requires</th>
+            <th>Rewards</th>
+          </tr>
+          <tr>
+            <th>
+              <span id="nextEnergyGoalLvl"></span>
+            </th>
+            <th>
+              <span class="cur_energy" id="nextEnergyGoal"></span>
+            </th>
+            <th>
+              <span class="cur_know_ess" id="nextEnergyGoalReward"></span>
+            </th>
+          </tr>
+          <tr>
+            <th>
+              <span id="nextEnergyGoalLvl1"></span>
+            </th>
+            <th>
+              <span class="cur_energy" id="nextEnergyGoal1"></span>
+            </th>
+            <th>
+              <span class="cur_know_ess" id="nextEnergyGoalReward1"></span>
+            </th>
+          </tr>
+        </table>
+      </div>
+      <div class="clear"></div>
+      <h2>Additional Bonus</h2>
+      <br>
+      <div id="achievementBonusContainer">
+        <div id="achievementBonus">
+          <div id="achievementBonusBar"></div>
+        </div>
+        <span id="achievementBonusTarget0">0</span>
+        <span id="achievementBonusTarget1">5</span>
+        <span id="achievementBonusTarget2">10</span>
+        <span id="achievementBonusTarget3">20</span>
+        <span id="achievementBonusTarget5">50</span>
+        <span id="achievementBonusTarget4">35</span>
+      </div>
+      <div id="BonusList">
+        <h2 style="margin-left:5px;margin-top:5px;">Bonuses</h2>
+        <div id="BonusListText" style="margin-left:5px;margin-top:5px;">
+          <p>5 Achievements - +15% game multiplyier</p>
+          <p>10 Achievements - +20% game multiplyier</p>
+          <p>20 Achievements - +40% game multiplyier</p>
+          <p>35 Achievements - +80% game multiplyier</p>
+          <p>50 Achievements - +160% game multiplyier</p> Total game multiplyier bonus - <b>+ <span id="TotalMultiplyBonus">0</span>
+            <span>%</span>
+          </b>
+        </div>
+      </div>
+    </div>
+    <div id="tabF" class="tabClass">
+      <br>
+      <h2>Settings N' Stuff</h2>
+      <hr>
+      <p>See your stats here.</p>
+      <div id="statscontainer" style="font-size:18px;">
+        <table>
+          <tr>
+            <td>Energy created (all time):</td>
+            <td>
+              <div id="createdenergy"></div>
+            </td>
+          </tr>
+          <tr>
+            <td>Total achievements:</td>
+            <td>
+              <div id="totalachievements"></div>
+            </td>
+          </tr>
+          <tr>
+            <td>Total buildings:</td>
+            <td>
+              <div id="totalbuildings"></div>
+            </td>
+          </tr>
+          <tr>
+            <td>Total research levels:</td>
+            <td>
+              <div id="totalresearch"></div>
+            </td>
+          </tr>
+          <tr>
+            <td>Energy goal level:</td>
+            <td>
+              <div class="EnergyGoalLevel"></div>
+            </td>
+          </tr>
+          <tr>
+            <td>Total multiplyier:</td>
+            <td>
+              <div id="TotalMultiply"></div>
+            </td>
+          </tr>
+          <tr>
+            <td>Version:</td>
+            <td>
+              <div id="version"></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <hr>
+      <br>
+      <div id="numberformat">Loading...</div>
+      <label style="margin-left:5px;	font-size:18px; vertical-align: middle;">Change number display type</label>
+      <br>
+      <br>
+      <div id="savebox">Save game</div>
+      <label style="margin-left:5px;	font-size:18px; vertical-align: middle;">Save manually (The game autosaves every 30 seconds; Shortcut : ctrl+S)</label>
+      <br>
+      <br>
+      <div id="exportImportSave">Export/Import Save</div>
+      <label style="margin-left:5px;	font-size:18px; vertical-align: middle;">Manage your game data</label>
+      <br>
+      <hr>
+      <br>
+      <div id="hardreset">Hard reset</div>
+      <label style="margin-left:5px;	font-size:18px; vertical-align: middle;">Delete <b style="color:#FF0000;">ALL</b> of you progress. </label>
+      <br>
+      <hr>
+      <br>
+      <textarea id="DebugCode"></textarea>
+      <div id="debugclick">Debug</div>
+      <br>
+      <hr>
+      <br>
+      <b style="font-size:30px;">Update Logs</b>
+      <span id="currentVersionSettings" style="font-size:26px;"></span>
+      <h3>Version:2.2.0</h3>
+      <p>Marginally better saving system and UI improvments</p>
+      <br>
+      <hr>
+      <br>
+      <h3>Version:2.1.3</h3>
+      <p>New energy goals, deals and UI improvments</p>
+      <br>
+      <hr>
+      <br>
+      <h3>Version:2.1.2</h3>
+      <p>New research chapters!</p>
+      <br>
+      <hr>
+      <br>
+      <h3>Version:2.1.1</h3>
+      <p>Save can be in localstorage, scientific notation, UI tweaks</p>
+      <br>
+      <hr>
+      <br>
+      <h3>Version:2.1.0</h3>
+      <p>Major update. More UI features. Brand new research and mechanics </p>
+      <br>
+      <hr>
+      <br>
+      <h3>Version:2.0.3</h3>
+      <p>UI fixes, refactored research and added new research.</p>
+      <br>
+      <hr>
+      <br>
+      <h3>Version:2.0.2</h3>
+      <p>Updated UI.</p>
+      <br>
+      <hr>
+      <br>
+      <h3>Version:2.0.1</h3>
+      <p>Reworked notifications. New achievement + stat.</p>
+      <br>
+      <hr>
+      <br>
+      <h3>Version:2.0.0</h3>
+      <p>Major overhaul</p>
+      <br>
+      <hr><br><h3>Version:1.1.1</h3><p>Zoomable research area</p><br>
+      <hr><br><h3>Version:1.1.0</h3><p>Revamped Buildings + More buildings</p><br>
+      <hr><br><h3>Version:1.0.3</h3><p>New research available. Achievements gives additional bonus!</p><br>
+      <hr><br><h3>Version:1.0.2</h3><p>New research available.</p><br>
+      <hr><br><h3>Version:1.0.1</h3><p>New research available. Some research can give buffs to some but debuffs to others and can be cancelable for more energy, but research points will not be refunded</p><br>
+      <hr><br><h3>Version:1.0.0</h3><p>Started implementing versions</p><br>
+      <hr><br>
+    </div><div class="clear"></div><div id="bottomcontainer"><div id="centernotify"><div id="notifyTitle" style="font-size:24px;"></div></div></div>
+  </div>
+</body>
+
+</html>

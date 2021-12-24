@@ -1,0 +1,216 @@
+ $( "#clickbuy1" ).click(function() {
+	//T(n)=original cost * 1^(1.15n)
+	BuildingClickCostMultiplier0000 = Math.pow(1.15, BuildingClickNumber0000)
+	BuildingClickCost0000 = BuildingClickOriginalCost0000 * BuildingClickCostMultiplier0000; 
+	//Round to three d.p.
+	BuildingClickCost0000 = Math.round(BuildingClickCost0000 * 1000) / 1000;
+if(BuildingClickCost0000 <= thetotal) {
+	//HAVE ENOUGH ENERGY BUY IT
+	thetotal = thetotal - BuildingClickCost0000;
+	thetotal = Math.round(thetotal * 1000) / 1000;
+	BuildingClickNumber0000 = BuildingClickNumber0000 + 1;
+	calcgain();
+	calcplus();
+	calcgaintotal();
+	acquried();
+	cost();
+} else {
+	$("#errorcost1").show("medium").delay(2500).queue(function(n) {
+  $(this).hide("medium"); n();
+});
+}
+ });
+  //clickBUY2
+   $( "#clickbuy2" ).click(function() {
+	//T(n)=original cost * 1^(1.15n)
+	BuildingClickCostMultiplier0001 = Math.pow(1.15, BuildingClickNumber0001)
+	BuildingClickCost0001 = BuildingClickOriginalCost0001 * BuildingClickCostMultiplier0001; 
+	//Round to three d.p.
+	BuildingClickCost0001 = Math.round(BuildingClickCost0001 * 1000) / 1000;
+if(BuildingClickCost0001 <= thetotal) {
+//HAVE ENOUGH ENERGY BUY IT
+	thetotal = thetotal - BuildingClickCost0001;
+	thetotal = Math.round(thetotal * 1000) / 1000;
+	BuildingClickNumber0001 = BuildingClickNumber0001 + 1;
+	calcgain();
+	calcplus();
+	calcgaintotal();
+    acquried();
+	cost();
+} else {
+	$("#errorcost2").show("medium").delay(2500).queue(function(n) {
+  $(this).hide("medium"); n();
+});
+}
+ });
+ 
+  $( "#autobuy1" ).click(function() {
+	BuildingAutoCostMultiplier0000 = Math.pow(1.15, BuildingAutoNumber0000)
+	BuildingAutoCost0000  = BuildingClickOriginalCost0000 * BuildingAutoCostMultiplier0000; 
+	BuildingAutoCost0000  = Math.round(BuildingAutoCost0000 * 1000) / 1000;	
+if(BuildingAutoCost0000<= thetotal) {
+  
+	thetotal = thetotal - BuildingAutoCost0000;
+	thetotal = Math.round(thetotal * 1000) / 1000;
+	BuildingAutoNumber0000 = BuildingAutoNumber0000 + 1;
+	calcepsgain();
+	calcepsplus();
+	calcepsgaintotal();
+    acquried();
+	cost();
+	
+} else {
+	$("#autoerrorcost1").show("medium").delay(2500).queue(function(n) {
+  $(this).hide("medium"); n();
+});
+}
+ });
+  //autoBUY2
+   $( "#autobuy2" ).click(function() {
+	BuildingAutoCostMultiplier0001 = Math.pow(1.15, BuildingAutoNumber0001)
+	BuildingAutoCost0001 = BuildingClickOriginalCost0001 * BuildingAutoCostMultiplier0001; 
+	BuildingAutoCost0001 = Math.round(BuildingAutoCost0001 * 1000) / 1000;	
+if(BuildingAutoCost0001 <= thetotal) {
+	thetotal = thetotal - BuildingAutoCost0001;
+	thetotal = Math.round(thetotal * 1000) / 1000;
+	BuildingAutoNumber0001 = BuildingAutoNumber0001 + 1;
+	calcepsgain();
+	calcepsplus();
+	calcepsgaintotal();
+    acquried();
+	cost();
+} else {
+	$("#autoerrorcost2").show("medium").delay(2500).queue(function(n) {
+  $(this).hide("medium"); n();
+});
+}
+ });
+  //autoBUY3
+   $( "#autobuy3" ).click(function() {
+	BuildingAutoCostMultiplier0002 = Math.pow(1.15, BuildingAutoNumber0002)
+	BuildingAutoCost0002 = BuildingAutoOriginalCost0002 * BuildingAutoCostMultiplier0001; 
+	BuildingAutoCost0002 = Math.round(BuildingAutoCost0002 * 1000) / 1000;
+if(BuildingAutoCost0002 <= thetotal) {
+	thetotal = thetotal - BuildingAutoCost0002;
+	thetotal = Math.round(thetotal * 1000) / 1000;
+	BuildingAutoNumber0002 = BuildingAutoNumber0002 + 1;
+	calcepsgain();
+	calcepsplus();
+	calcepsgaintotal();
+    acquried();
+	cost();
+} else {
+	$("#autoerrorcost3").show("medium").delay(2500).queue(function(n) {
+  $(this).hide("medium"); n();
+});
+}
+ });
+ BuildingClickCostMultiplier0000 = Math.pow(1.15, BuildingClickNumber0000)
+	BuildingClickCost0000 = BuildingClickOriginalCost0000 * BuildingClickCostMultiplier0000; 
+	//Round to three d.p.
+	BuildingClickCost0000 = Math.round(BuildingClickCost0000 * 1000) / 1000;
+	$("#epcost0000").html(formatNumber(BuildingClickCost0000)); 
+	
+	BuildingClickCostMultiplier0001 = Math.pow(1.15, BuildingClickNumber0001)
+	BuildingClickCost0001 = BuildingClickOriginalCost0001 * BuildingClickCostMultiplier0001; 
+	//Round to three d.p.
+	BuildingClickCost0001 = Math.round(BuildingClickCost0001 * 1000) / 1000;
+	$("#epcost0001").html(formatNumber(BuildingClickCost0001));
+	
+	//auto part
+	BuildingAutoCostMultiplier0000 = Math.pow(1.15, BuildingAutoNumber0000)
+	BuildingAutoCost0000  = BuildingAutoOriginalCost0000 * BuildingAutoCostMultiplier0000; 
+	BuildingAutoCost0000  = Math.round(BuildingAutoCost0000 * 1000) / 1000;	
+	
+	$("#egcost0000").html(formatNumber(BuildingAutoCost0000));
+	
+	BuildingAutoCostMultiplier0001 = Math.pow(1.15, BuildingAutoNumber0001)
+	BuildingAutoCost0001 = BuildingAutoOriginalCost0001 * BuildingAutoCostMultiplier0001; 
+	BuildingAutoCost0001 = Math.round(BuildingAutoCost0001 * 1000) / 1000;	
+	$("#egcost0001").html(formatNumber(BuildingAutoCost0001));
+	
+	BuildingAutoCostMultiplier0002 = Math.pow(1.15, BuildingAutoNumber0002)
+	BuildingAutoCost0002 = BuildingAutoOriginalCost0002 * BuildingAutoCostMultiplier0002; 
+	BuildingAutoCost0002 = Math.round(BuildingAutoCost0002 * 1000) / 1000;
+	$("#egcost0002").html(formatNumber(BuildingAutoCost0002));
+	
+    BuildingAutoCostMultiplier0003 = Math.pow(1.15, BuildingAutoNumber0003)
+	BuildingAutoCost0003 = BuildingAutoOriginalCost0003 * BuildingAutoCostMultiplier0003; 
+	BuildingAutoCost0003 = Math.round(BuildingAutoCost0003 * 1000) / 1000;
+	$("#egcost0003").html(formatNumber(BuildingAutoCost0003));
+	
+//html
+
+<!--
+<div class="upgradebox" id="upgradeenergy1"><img src="<?php echo $host;?>/website/img/energy1.png" style="width: 100%;"><span class="upgradetooltiptext"><span>Cost: </span><span id="upgradeenergy1cost"></span><br><span>Increase energy multiplyier by <b>0.05</b></span></span></div>
+<div class="upgradebox" id="upgradeenergy2"><img src="<?php echo $host;?>/website/img/energy2.png" style="width: 100%;"><span class="upgradetooltiptext"><span>Cost: </span><span id="upgradeenergy2cost"></span><br><span>Increase energy multiplyier by <b>0.05</b></span></span></div>
+<div class="clear"></div>
+<div class="upgradebox" id="upgradeprobarenergy1"><img src="<?php echo $host;?>/website/img/probarenergy1.png" style="width: 100%;"><span class="upgradetooltiptext"><span>Cost: </span><span id="upgradeprobarenergy1cost"></span><br><span>Reduce progress bar operation time by <b>40ms</b>.</span></span></div>
+<div class="upgradebox" id="upgradeprobarenergy2"><img src="<?php echo $host;?>/website/img/probarenergy2.png" style="width: 100%;"><span class="upgradetooltiptext"><span>Cost: </span><span id="upgradeprobarenergy2cost"></span><br><span>Reduce progress bar operation time by <b>60ms</b>.</span></span></div>
+<div class="clear"></div>
+<div class="upgradebox" id="upgradet1energypylon1"><img src="<?php echo $host;?>/website/img/pylon/t1energypylon1.png" style="width: 100%;"><span class="upgradetooltiptext"><span>Cost: </span><span id="upgradet1energypylon1cost"></span><br><span>Energy Pylons T1 will be <b>twice</b> as efficent.</span></span></div>
+<div class="upgradebox" id="upgradet1energypylon2"><img src="<?php echo $host;?>/website/img/pylon/t1energypylon2.png" style="width: 100%;"><span class="upgradetooltiptext"><span>Cost: </span><span id="upgradet1energypylon2cost"></span><br><span>Energy Pylons T1 will be <b>twice</b> as efficent.</span></span></div>
+<div class="clear"></div>
+<div class="upgradebox" id="upgradet2energypylon1"><img src="<?php echo $host;?>/website/img/pylon/t2energypylon1.png" style="width: 100%;"><span class="upgradetooltiptext"><span>Cost: </span><span id="upgradet2energypylon1cost"></span><br><span>Energy Pylons T2 will be <b>twice</b> as efficent.</span></span></div>
+<div class="upgradebox" id="upgradet2energypylon2"><img src="<?php echo $host;?>/website/img/pylon/t2energypylon2.png" style="width: 100%;"><span class="upgradetooltiptext"><span>Cost: </span><span id="upgradet2energypylon2cost"></span><br><span>Energy Pylons T2 will be <b>twice</b> as efficent.</span></span></div>
+<div class="clear"></div>
+<div class="upgradebox" id="upgradet1generator1"><img src="<?php echo $host;?>/website/img/generator/t1generator1.png" style="width: 100%;"><span class="upgradetooltiptext"><span>Cost: </span><span id="upgradet1generator1cost"></span><br><span>Generator T1 will be <b>twice</b> as efficent.</span></span></div>
+<div class="upgradebox" id="upgradet1generator2"><img src="<?php echo $host;?>/website/img/generator/t1generator2.png" style="width: 100%;"><span class="upgradetooltiptext"><span>Cost: </span><span id="upgradet1generator2cost"></span><br><span>Generator T1 will be <b>twice</b> as efficent.</span></span></div>
+<div class="clear"></div>
+<div class="upgradebox" id="upgradet2generator1"><img src="<?php echo $host;?>/website/img/generator/t2generator1.png" style="width: 100%;"><span class="upgradetooltiptext"><span>Cost: </span><span id="upgradet2generator1cost"></span><br><span>Generator T2 will be <b>twice</b> as efficent.</span></span></div>
+<div class="upgradebox" id="upgradet2generator2"><img src="<?php echo $host;?>/website/img/generator/t2generator2.png" style="width: 100%;"><span class="upgradetooltiptext"><span>Cost: </span><span id="upgradet2generator2cost"></span><br><span>Generator T2 will be <b>twice</b> as efficent.</span></span></div>
+<div class="clear"></div>
+<div class="upgradebox" id="upgradet3generator1"><img src="<?php echo $host;?>/website/img/generator/t3generator1.png" style="width: 100%;"><span class="upgradetooltiptext"><span>Cost: </span><span id="upgradet3generator1cost"></span><br><span>Generator T3 will be <b>twice</b> as efficent.</span></span></div>
+<div class="upgradebox" id="upgradet3generator2"><img src="<?php echo $host;?>/website/img/generator/t3generator2.png" style="width: 100%;"><span class="upgradetooltiptext"><span>Cost: </span><span id="upgradet3generator2cost"></span><br><span>Generator T3 will be <b>twice</b> as efficent.</span></span></div>
+!-->
+<?php //include_once($root."/website/comment.php");?>
+<!--
+<footer>
+	<h2>Social Stuff</h2>
+	<links>
+	<ul>
+		<li><a href="http://www.youtube.com">My Youtube Channel</a></li>
+		<li><a href="http://www.facebook.com"><img src="<?php echo $host;?>/website/img/fb.png" style="margin-right:5px;margin-bottom:-5px;"/> My Facebook</a></li>
+	</ul>
+	</links>
+	<div class="one-third">
+	<p><br><br>End of page<br><br></p>
+	</div>
+	<div class="one-third">
+	<p><br><br>End of page <br><br>
+	</p>
+	</div>
+	<div class="one-third">
+	<p><br><br>End of page <br><br>
+	  </p>
+	</div>
+</footer>
+!-->
+<!--
+<div style="background-image: url('<?php echo $host;?>/website/img/hx2003.png'); width:350px; height:200px; background-repeat:no-repeat; margin-bottom:50px;"></div>
+
+<?php //include_once($_SERVER['DOCUMENT_ROOT']."/website/searchbar.php");?>
+
+<nav>
+	<ul>
+
+		<li class='home'><a href="<?php echo $host;?>/website/">Home</a></li>
+	    <li class='blogs'><a href="<?php echo $host;?>/website/theblogs.php">Blogs</a></li>
+	    <li class='about'><a href="<?php echo $host;?>/website/about.php">About</a></li>
+		<li class='tools'><a href="<?php echo $host;?>/website/tools.php">Tools</a></li>
+		<li class='#'><a href="#">#</a></li>
+		<li class='info'><a href="<?php echo $host;?>/website/info.php">More Info</a></li>
+	</ul>
+</nav>
+<div id="banner">
+	<img src="<?php echo $host;?>/website/img/banner2.png">
+</div>
+!--> 
+<?php
+//error_reporting(E_ALL & ~E_NOTICE);
+//include_once($_SERVER['DOCUMENT_ROOT']."/website/addview.php");
+include_once($_SERVER['DOCUMENT_ROOT']."/website/connection.php");		
+?><!--
+		<link href="<?php echo $host;?>/website/style.css" rel="stylesheet">
+		 !-->
+		 
